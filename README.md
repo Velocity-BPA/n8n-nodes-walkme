@@ -1,6 +1,6 @@
 # n8n-nodes-walkme
 
-> [Velocity BPA Licensing Notice]
+> **[Velocity BPA Licensing Notice]**
 >
 > This n8n node is licensed under the Business Source License 1.1 (BSL 1.1).
 >
@@ -8,286 +8,217 @@
 >
 > For licensing information, visit https://velobpa.com/licensing or contact licensing@velobpa.com.
 
-A comprehensive n8n community node for WalkMe Digital Adoption Platform (DAP), providing complete integration with WalkMe's REST APIs. Features 12 resources, 80+ operations, webhook trigger support, and multi-region connectivity.
+This n8n community node provides comprehensive integration with WalkMe's Digital Adoption Platform, enabling automation across 5 core resources including Users, Analytics, Content, Segments, and Organizations. Streamline user onboarding workflows, analyze digital adoption metrics, manage content lifecycle, segment user populations, and orchestrate organizational settings through n8n's visual automation interface.
 
-![n8n](https://img.shields.io/badge/n8n-community--node-orange)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![n8n Community Node](https://img.shields.io/badge/n8n-Community%20Node-blue)
 ![License](https://img.shields.io/badge/license-BSL--1.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
+![WalkMe API](https://img.shields.io/badge/WalkMe-API%20Integration-orange)
+![Digital Adoption](https://img.shields.io/badge/Digital%20Adoption-Platform-green)
+![User Analytics](https://img.shields.io/badge/User-Analytics-purple)
 
 ## Features
 
-- **User Management**: Full CRUD operations with role assignment, activation/deactivation, and password reset
-- **End User Updates**: Real-time attribute updates with bulk operation and attribute definition management
-- **Content Management**: Manage Smart Walk-Thrus, Resources, Surveys, Launchers, ShoutOuts with versioning and rollback
-- **Analytics**: Comprehensive analytics with completion rates, funnel analysis, user journeys, and goal metrics
-- **Multi-Language**: Export/import translations in JSON, XLIFF, and CSV with status tracking
-- **Discovery Apps**: Track discovered applications with categorization, tagging, and trend analysis
-- **Systems**: Full system management with settings and installation script retrieval
-- **Segments**: Create and manage user segments with rule-based targeting
-- **Goals**: Define and track business goals with content association
-- **Checksum**: Verify content integrity across environments
-- **Self-Hosted**: Download self-hosted WalkMe files and versions
-- **API Keys**: Manage API keys with rotation and scope control
-- **Webhook Trigger**: React to WalkMe events in real-time
-- **Multi-Region Support**: US, EU, FedRAMP, and Canada data centers
+- **User Management** - Create, update, and manage user accounts with role assignments and permissions
+- **Analytics & Insights** - Extract digital adoption metrics, user engagement data, and performance analytics
+- **Content Operations** - Manage Smart Walk-Thrus, SmartTips, and other WalkMe content programmatically
+- **Segment Management** - Create and maintain user segments for targeted digital adoption campaigns
+- **Organization Control** - Configure organizational settings, domains, and administrative preferences
+- **Workflow Automation** - Trigger automated responses based on user behavior and adoption milestones
+- **Data Synchronization** - Sync user data between WalkMe and external systems seamlessly
+- **Bulk Operations** - Perform batch operations across users, content, and segments efficiently
 
 ## Installation
 
 ### Community Nodes (Recommended)
 
-1. Go to **Settings** > **Community Nodes** in your n8n instance
-2. Select **Install**
-3. Enter `n8n-nodes-walkme` in the package name field
-4. Agree to the risks and click **Install**
+1. Open n8n
+2. Go to **Settings** → **Community Nodes**
+3. Click **Install a community node**
+4. Enter `n8n-nodes-walkme`
+5. Click **Install**
 
 ### Manual Installation
 
 ```bash
-# Navigate to your n8n installation directory
 cd ~/.n8n
-
-# Install the package
 npm install n8n-nodes-walkme
+```
 
-# Restart n8n
+### Development Installation
+
+```bash
+git clone https://github.com/Velocity-BPA/n8n-nodes-walkme.git
+cd n8n-nodes-walkme
+npm install
+npm run build
+mkdir -p ~/.n8n/custom
+ln -s $(pwd) ~/.n8n/custom/n8n-nodes-walkme
 n8n start
 ```
 
 ## Credentials Setup
 
-Configure your WalkMe API credentials in n8n:
-
-| Field | Description |
-|-------|-------------|
-| **Username** | Your WalkMe API username (Client ID) |
-| **Password** | Your WalkMe API password (Client Secret) |
-| **Region** | Your WalkMe data center region (US, EU, FedRAMP, Canada) |
-
-To obtain API credentials, contact your WalkMe Account Manager.
+| Field | Description | Required |
+|-------|-------------|----------|
+| API Key | Your WalkMe API key from the Admin Center | Yes |
+| Environment | WalkMe environment (production/staging) | Yes |
+| Base URL | Custom API base URL (if using private cloud) | No |
 
 ## Resources & Operations
 
-### User (User Provisioning)
+### 1. Users
 
 | Operation | Description |
 |-----------|-------------|
-| List | List all WalkMe users with filtering |
-| Get | Get user details by ID |
-| Create | Create a new user |
-| Update | Update user properties |
-| Delete | Delete a user |
-| Assign Role | Assign a role to a user |
-| Remove Role | Remove a role from a user |
-| List Roles | List available roles |
-| Get Permissions | Get user's effective permissions |
-| Activate | Activate a user account |
-| Deactivate | Deactivate a user account |
-| Reset Password | Trigger password reset |
+| Create | Create a new user account in WalkMe |
+| Get | Retrieve user information by ID or email |
+| Update | Update user profile, roles, or permissions |
+| Delete | Remove user account from the system |
+| List | Get paginated list of users with filtering options |
+| Get Activity | Retrieve user's activity and engagement metrics |
+| Reset Password | Initiate password reset for specified user |
+| Assign Role | Assign or modify user roles and permissions |
 
-### End User
+### 2. Analytics
 
 | Operation | Description |
 |-----------|-------------|
-| Update | Update end user attributes |
-| Bulk Update | Batch update multiple end users |
-| Get | Retrieve end user data |
-| Get Attributes | Get end user attribute definitions |
-| Create Attribute Definition | Define a new attribute |
-| Delete Attribute Definition | Remove an attribute definition |
-| Get Segments | Get segments for an end user |
-| List Integrations | List incoming integrations |
+| Get Usage Stats | Retrieve overall platform usage statistics |
+| Get User Engagement | Get detailed user engagement metrics |
+| Get Content Performance | Analyze performance of specific content items |
+| Get Completion Rates | Retrieve completion rates for Smart Walk-Thrus |
+| Get Session Data | Extract user session data and behavior patterns |
+| Export Report | Generate and export analytics reports |
+| Get Funnel Analysis | Analyze user journey and conversion funnels |
+| Get Heatmap Data | Retrieve click and interaction heatmap data |
 
-### Content
-
-| Operation | Description |
-|-----------|-------------|
-| List | List all content items |
-| Get | Get content details by ID |
-| Publish | Publish content to an environment |
-| Unpublish | Unpublish content from an environment |
-| Get Analytics | Get content performance analytics |
-| List Smart Walk-Thrus | List all Smart Walk-Thrus |
-| List Resources | List all Resources |
-| List ShoutOuts | List all ShoutOuts |
-| List Launchers | List all Launchers |
-| List Surveys | List all Surveys |
-| Get Versions | Get content version history |
-| Rollback | Rollback to a previous version |
-
-### Analytics
+### 3. Content
 
 | Operation | Description |
 |-----------|-------------|
-| Get Overview | Get analytics overview |
-| Get Completion Rates | Get completion rate metrics |
-| Get Content Performance | Get content metrics |
-| Get User Engagement | Get engagement data |
-| Get Funnel Analysis | Get funnel data |
-| Get Time To Complete | Get timing metrics |
-| Get User Journeys | Get journey analytics |
-| Get Goal Metrics | Get goal completion data |
-| Export | Export analytics data |
+| Create | Create new Smart Walk-Thru, SmartTips, or other content |
+| Get | Retrieve content item details and configuration |
+| Update | Modify existing content properties and settings |
+| Delete | Remove content item from the system |
+| List | Get paginated list of content with filtering |
+| Publish | Publish content to make it available to users |
+| Unpublish | Remove content from active distribution |
+| Duplicate | Create copy of existing content item |
+| Get Statistics | Retrieve performance statistics for content |
 
-### Multi-Language
-
-| Operation | Description |
-|-----------|-------------|
-| List Languages | List configured languages |
-| Get Language | Get language details |
-| Add Language | Add a new language |
-| Remove Language | Remove a language |
-| Export Translations | Export translation files |
-| Import Translations | Import translations |
-| Get Translation Status | Get translation completion status |
-| Update Translations | Update specific translations |
-
-### Discovery Apps
+### 4. Segments
 
 | Operation | Description |
 |-----------|-------------|
-| Get Stats | Get discovered apps statistics |
-| List Apps | List all discovered applications |
-| Get App Details | Get app usage details |
-| Categorize App | Assign category to app |
-| Add Tag | Tag an application |
-| Remove Tag | Remove tag from app |
-| Get App Users | Get users of an app |
-| Get App Trends | Get app usage trends |
-| Export Report | Export apps data |
+| Create | Create new user segment with defined criteria |
+| Get | Retrieve segment configuration and member count |
+| Update | Modify segment criteria and properties |
+| Delete | Remove segment from the system |
+| List | Get all segments with filtering options |
+| Add Users | Add specific users to a segment |
+| Remove Users | Remove users from a segment |
+| Get Members | Retrieve list of users in a segment |
 
-### Systems
-
-| Operation | Description |
-|-----------|-------------|
-| List | List all WalkMe systems |
-| Get | Get system details |
-| Create | Create a new system |
-| Update | Update system properties |
-| Delete | Delete a system |
-| Get Settings | Get system configuration |
-| Update Settings | Update system configuration |
-| Get Installation Script | Get tracking snippet |
-
-### Segments
+### 5. Organizations
 
 | Operation | Description |
 |-----------|-------------|
-| List | List all segments |
-| Get | Get segment details |
-| Create | Create a new segment |
-| Update | Update segment rules |
-| Delete | Delete a segment |
-| Get Members | Get users in a segment |
-| Get Analytics | Get segment metrics |
-| Clone | Duplicate a segment |
+| Get Settings | Retrieve organization configuration settings |
+| Update Settings | Modify organizational preferences and policies |
+| Get Domains | List configured domains for the organization |
+| Add Domain | Add new domain to organization configuration |
+| Remove Domain | Remove domain from organization |
+| Get Branding | Retrieve branding and styling configuration |
+| Update Branding | Modify organization branding and appearance |
+| Get Integrations | List active integrations and connections |
 
-### Goals
+## Usage Examples
 
-| Operation | Description |
-|-----------|-------------|
-| List | List all goals |
-| Get | Get goal details |
-| Create | Create a new goal |
-| Update | Update goal definition |
-| Delete | Delete a goal |
-| Get Progress | Get goal completion data |
-| Get Trends | Get goal trends over time |
-| Associate Content | Link content to a goal |
+```javascript
+// Create a new user and assign to segment
+{
+  "name": "Create User",
+  "type": "n8n-nodes-walkme.walkMe",
+  "parameters": {
+    "resource": "users",
+    "operation": "create",
+    "email": "john.doe@company.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "end_user",
+    "segments": ["new_employees", "sales_team"]
+  }
+}
+```
 
-### Checksum
+```javascript
+// Get content performance analytics
+{
+  "name": "Get Analytics",
+  "type": "n8n-nodes-walkme.walkMe",
+  "parameters": {
+    "resource": "analytics",
+    "operation": "getContentPerformance",
+    "contentId": "wt_12345",
+    "dateRange": "last_30_days",
+    "metrics": ["views", "completions", "dropoff_rate"]
+  }
+}
+```
 
-| Operation | Description |
-|-----------|-------------|
-| Get | Get published content checksum |
-| Verify | Verify content integrity |
-| Compare | Compare checksums across environments |
+```javascript
+// Update Smart Walk-Thru content
+{
+  "name": "Update Content",
+  "type": "n8n-nodes-walkme.walkMe",
+  "parameters": {
+    "resource": "content",
+    "operation": "update",
+    "contentId": "wt_67890",
+    "title": "Updated Onboarding Flow",
+    "description": "Revised user onboarding process",
+    "status": "published"
+  }
+}
+```
 
-### Self-Hosted
-
-| Operation | Description |
-|-----------|-------------|
-| List Versions | List available versions |
-| Get Latest Version | Get latest version info |
-| Download Files | Download self-hosted files |
-| Download Version | Download specific version |
-
-### API Keys
-
-| Operation | Description |
-|-----------|-------------|
-| List | List all API keys |
-| Create | Generate new API key |
-| Update | Update key settings |
-| Delete | Revoke API key |
-| Rotate | Rotate API key |
-
-## WalkMe Trigger
-
-The WalkMe Trigger node listens for webhook events from WalkMe.
-
-### Supported Events
-
-| Event | Description |
-|-------|-------------|
-| content.completed | User completed content |
-| content.started | User started content |
-| content.abandoned | User abandoned content |
-| goal.achieved | Goal was completed |
-| survey.submitted | Survey response received |
-| segment.entered | User entered segment |
-| segment.exited | User exited segment |
-| error.occurred | Error captured |
-| launcher.clicked | Launcher was clicked |
-
-### Webhook Setup
-
-1. Create a WalkMe Trigger node in your workflow
-2. Copy the webhook URL provided
-3. In WalkMe dashboard, go to Insights > Integrations
-4. Configure a new webhook with the URL
-5. Select the events to send
-
-## Data Center Regions
-
-| Region | API URL |
-|--------|---------|
-| US | https://api.walkme.com |
-| EU | https://eu-api.walkme.com |
-| FedRAMP | https://api.walkmegov.com |
-| Canada | https://api-ca1.walkmedap.com |
+```javascript
+// Create targeted user segment
+{
+  "name": "Create Segment",
+  "type": "n8n-nodes-walkme.walkMe",
+  "parameters": {
+    "resource": "segments",
+    "operation": "create",
+    "name": "Power Users",
+    "criteria": {
+      "loginFrequency": "daily",
+      "completedWalkthroughs": "> 5",
+      "department": "engineering"
+    }
+  }
+}
+```
 
 ## Error Handling
 
-The node handles common WalkMe API errors:
-
-| Code | Description |
-|------|-------------|
-| 400 | Bad Request - Invalid parameters |
-| 401 | Unauthorized - Invalid or expired credentials |
-| 403 | Forbidden - Insufficient permissions or scope |
-| 404 | Not Found - Resource doesn't exist |
-| 429 | Rate Limited - Too many requests |
-| 500 | Server Error - WalkMe internal error |
-
-Enable "Continue on Fail" in your workflow to handle errors gracefully.
+| Error | Description | Solution |
+|-------|-------------|----------|
+| 401 Unauthorized | Invalid API key or expired credentials | Verify API key in credentials configuration |
+| 403 Forbidden | Insufficient permissions for requested operation | Check user role and API key permissions |
+| 404 Not Found | Requested resource (user, content, segment) not found | Verify resource ID exists and is accessible |
+| 429 Rate Limited | API rate limit exceeded | Implement delays between requests or reduce frequency |
+| 400 Bad Request | Invalid parameters or malformed request data | Review parameter format and required fields |
+| 500 Internal Server Error | WalkMe API service error | Check WalkMe service status and retry later |
 
 ## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Run linting
-npm run lint
-
-# Run tests
-npm test
-
-# Build the project
 npm run build
-
-# Watch mode for development
+npm test
+npm run lint
 npm run dev
 ```
 
@@ -305,22 +236,24 @@ This n8n community node is licensed under the **Business Source License 1.1**.
 Permitted for personal, educational, research, and internal business use.
 
 ### Commercial Use
-Use of this node within any SaaS, PaaS, hosted platform, managed service,
-or paid automation offering requires a commercial license.
+Use of this node within any SaaS, PaaS, hosted platform, managed service, or paid automation offering requires a commercial license.
 
-For licensing inquiries:
-**licensing@velobpa.com**
+For licensing inquiries: **licensing@velobpa.com**
 
 See [LICENSE](LICENSE), [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md), and [LICENSING_FAQ.md](LICENSING_FAQ.md) for details.
 
+## Contributing
+
+Contributions are welcome! Please ensure:
+
+1. Code follows existing style conventions
+2. All tests pass (`npm test`)
+3. Linting passes (`npm run lint`)
+4. Documentation is updated for new features
+5. Commit messages are descriptive
+
 ## Support
 
-- **Documentation**: [WalkMe Developer Portal](https://developer.walkme.com)
 - **Issues**: [GitHub Issues](https://github.com/Velocity-BPA/n8n-nodes-walkme/issues)
-- **Commercial Support**: [licensing@velobpa.com](mailto:licensing@velobpa.com)
-
-## Acknowledgments
-
-- [WalkMe](https://www.walkme.com) for their comprehensive API platform
-- [n8n](https://n8n.io) for the workflow automation platform
-- The n8n community for inspiration and best practices
+- **WalkMe API Documentation**: [WalkMe Developer Portal](https://developers.walkme.com/)
+- **WalkMe Community**: [WalkMe Community Hub](https://community.walkme.com/)

@@ -11,18 +11,14 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "sourceMap": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "moduleResolution": "node"
+    "sourceMap": false
   },
   "include": [
     "nodes/**/*",
     "credentials/**/*"
   ],
   "exclude": [
-    "node_modules",
     "dist",
-    "**/*.test.ts"
+    "node_modules"
   ]
 }

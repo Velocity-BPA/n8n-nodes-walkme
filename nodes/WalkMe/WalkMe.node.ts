@@ -67,6 +67,14 @@ export class WalkMe implements INodeType {
           {
             name: 'Organizations',
             value: 'organizations',
+          },
+          {
+            name: 'Walkthroughs',
+            value: 'walkthroughs',
+          },
+          {
+            name: 'SmartTips',
+            value: 'smartTips',
           }
         ],
         default: 'users',
@@ -119,6 +127,12 @@ export class WalkMe implements INodeType {
       description: 'Create multiple users in batch',
       action: 'Bulk create users',
     },
+    {
+      name: 'Get User Activity',
+      value: 'getUserActivity',
+      description: 'Get user activity history',
+      action: 'Get user activity',
+    },
   ],
   default: 'getUsers',
 },
@@ -169,6 +183,36 @@ export class WalkMe implements INodeType {
       description: 'Retrieve funnel analysis data',
       action: 'Get funnels',
     },
+    { 
+      name: 'Get Insights', 
+      value: 'getInsights', 
+      description: 'Retrieve analytics insights', 
+      action: 'Get insights' 
+    },
+    { 
+      name: 'Get Engagement', 
+      value: 'getEngagement', 
+      description: 'Get engagement metrics', 
+      action: 'Get engagement' 
+    },
+    { 
+      name: 'Get Goals', 
+      value: 'getGoals', 
+      description: 'Get goal completion data', 
+      action: 'Get goals' 
+    },
+    { 
+      name: 'Get Segments', 
+      value: 'getSegments', 
+      description: 'List available user segments', 
+      action: 'Get segments' 
+    },
+    { 
+      name: 'Track Custom Event', 
+      value: 'trackCustomEvent', 
+      description: 'Track custom analytics events', 
+      action: 'Track custom event' 
+    }
   ],
   default: 'getEvents',
 },
@@ -322,6 +366,38 @@ export class WalkMe implements INodeType {
   ],
   default: 'getOrganizations',
 },
+{
+	displayName: 'Operation',
+	name: 'operation',
+	type: 'options',
+	noDataExpression: true,
+	displayOptions: { show: { resource: ['walkthroughs'] } },
+	options: [
+		{ name: 'Get All Walkthroughs', value: 'getWalkthroughs', description: 'List all walkthroughs', action: 'Get all walkthroughs' },
+		{ name: 'Get Walkthrough', value: 'getWalkthrough', description: 'Get specific walkthrough', action: 'Get walkthrough' },
+		{ name: 'Create Walkthrough', value: 'createWalkthrough', description: 'Create new walkthrough', action: 'Create walkthrough' },
+		{ name: 'Update Walkthrough', value: 'updateWalkthrough', description: 'Update walkthrough', action: 'Update walkthrough' },
+		{ name: 'Delete Walkthrough', value: 'deleteWalkthrough', description: 'Delete walkthrough', action: 'Delete walkthrough' },
+		{ name: 'Publish Walkthrough', value: 'publishWalkthrough', description: 'Publish walkthrough to users', action: 'Publish walkthrough' },
+	],
+	default: 'getWalkthroughs',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: { show: { resource: ['smartTips'] } },
+  options: [
+    { name: 'Get Smart Tips', value: 'getSmartTips', description: 'List all smart tips', action: 'Get smart tips' },
+    { name: 'Get Smart Tip', value: 'getSmartTip', description: 'Get specific smart tip', action: 'Get smart tip' },
+    { name: 'Create Smart Tip', value: 'createSmartTip', description: 'Create new smart tip', action: 'Create smart tip' },
+    { name: 'Update Smart Tip', value: 'updateSmartTip', description: 'Update smart tip', action: 'Update smart tip' },
+    { name: 'Delete Smart Tip', value: 'deleteSmartTip', description: 'Delete smart tip', action: 'Delete smart tip' },
+    { name: 'Get Smart Tip Analytics', value: 'getSmartTipAnalytics', description: 'Get tip performance data', action: 'Get smart tip analytics' },
+  ],
+  default: 'getSmartTips',
+},
       // Parameter definitions
 {
   displayName: 'Organization ID',
@@ -364,6 +440,19 @@ export class WalkMe implements INodeType {
   description: 'Number of users per page',
 },
 {
+  displayName: 'Filter',
+  name: 'filter',
+  type: 'string',
+  default: '',
+  description: 'Filter users by criteria',
+  displayOptions: {
+    show: {
+      resource: ['users'],
+      operation: ['getUsers'],
+    },
+  },
+},
+{
   displayName: 'User ID',
   name: 'userId',
   type: 'string',
@@ -371,7 +460,7 @@ export class WalkMe implements INodeType {
   displayOptions: {
     show: {
       resource: ['users'],
-      operation: ['getUser', 'updateUser', 'deleteUser'],
+      operation: ['getUser', 'updateUser', 'deleteUser', 'getUserActivity'],
     },
   },
   default: '',
@@ -432,6 +521,32 @@ export class WalkMe implements INodeType {
   description: 'User full name',
 },
 {
+  displayName: 'Role',
+  name: 'role',
+  type: 'string',
+  default: '',
+  description: 'User role in the organization',
+  displayOptions: {
+    show: {
+      resource: ['users'],
+      operation: ['createUser', 'updateUser'],
+    },
+  },
+},
+{
+  displayName: 'Department',
+  name: 'department',
+  type: 'string',
+  default: '',
+  description: 'User department',
+  displayOptions: {
+    show: {
+      resource: ['users'],
+      operation: ['createUser', 'updateUser'],
+    },
+  },
+},
+{
   displayName: 'Properties',
   name: 'properties',
   type: 'fixedCollection',
@@ -487,11 +602,37 @@ export class WalkMe implements INodeType {
   displayName: 'Start Date',
   name: 'startDate',
   type: 'dateTime',
+  default: '',
+  description: 'Start date for activity history (ISO 8601 format)',
+  displayOptions: {
+    show: {
+      resource: ['users'],
+      operation: ['getUserActivity'],
+    },
+  },
+},
+{
+  displayName: 'End Date',
+  name: 'endDate',
+  type: 'dateTime',
+  default: '',
+  description: 'End date for activity history (ISO 8601 format)',
+  displayOptions: {
+    show: {
+      resource: ['users'],
+      operation: ['getUserActivity'],
+    },
+  },
+},
+{
+  displayName: 'Start Date',
+  name: 'startDate',
+  type: 'dateTime',
   required: true,
   displayOptions: {
     show: {
       resource: ['analytics'],
-      operation: ['getEvents', 'getSessions', 'getContentAnalytics', 'getReports', 'getFunnels'],
+      operation: ['getEvents', 'getSessions', 'getContentAnalytics', 'getReports', 'getFunnels', 'getInsights', 'getEngagement', 'getGoals'],
     },
   },
   default: '',
@@ -505,7 +646,7 @@ export class WalkMe implements INodeType {
   displayOptions: {
     show: {
       resource: ['analytics'],
-      operation: ['getEvents', 'getSessions', 'getContentAnalytics', 'getReports', 'getFunnels'],
+      operation: ['getEvents', 'getSessions', 'getContentAnalytics', 'getReports', 'getFunnels', 'getInsights', 'getEngagement', 'getGoals'],
     },
   },
   default: '',
@@ -547,7 +688,7 @@ export class WalkMe implements INodeType {
   displayOptions: {
     show: {
       resource: ['analytics'],
-      operation: ['createEvent'],
+      operation: ['createEvent', 'trackCustomEvent'],
     },
   },
   default: '',
@@ -589,7 +730,7 @@ export class WalkMe implements INodeType {
   displayOptions: {
     show: {
       resource: ['analytics'],
-      operation: ['createEvent'],
+      operation: ['createEvent', 'trackCustomEvent'],
     },
   },
   default: '{}',
@@ -656,6 +797,62 @@ export class WalkMe implements INodeType {
   },
   default: '',
   description: 'The funnel ID to analyze',
+},
+{
+  displayName: 'Metric',
+  name: 'metric',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['analytics'],
+      operation: ['getInsights']
+    }
+  },
+  default: '',
+  description: 'The metric to retrieve insights for',
+},
+{
+  displayName: 'Segment ID',
+  name: 'segmentId',
+  type: 'string',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['analytics'],
+      operation: ['getEngagement']
+    }
+  },
+  default: '',
+  description: 'ID of the user segment to filter engagement metrics',
+},
+{
+  displayName: 'Goal ID',
+  name: 'goalId',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['analytics'],
+      operation: ['getGoals']
+    }
+  },
+  default: '',
+  description: 'ID of the goal to retrieve completion data for',
+},
+{
+  displayName: 'Event Name',
+  name: 'eventName',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['analytics'],
+      operation: ['trackCustomEvent']
+    }
+  },
+  default: '',
+  description: 'Name of the custom event to track',
 },
 {
   displayName: 'Content Type',
@@ -961,6 +1158,33 @@ export class WalkMe implements INodeType {
   description: 'JSON object defining the segment conditions and targeting rules',
 },
 {
+  displayName: 'Rules',
+  name: 'rules',
+  type: 'json',
+  default: '{}',
+  required: true,
+  description: 'The targeting rules for the segment in JSON format',
+  displayOptions: {
+    show: {
+      resource: ['segments'],
+      operation: ['createSegment', 'updateSegment'],
+    },
+  },
+},
+{
+  displayName: 'Description',
+  name: 'description',
+  type: 'string',
+  default: '',
+  description: 'Description of the segment',
+  displayOptions: {
+    show: {
+      resource: ['segments'],
+      operation: ['createSegment'],
+    },
+  },
+},
+{
   displayName: 'Page',
   name: 'page',
   type: 'number',
@@ -1108,6 +1332,177 @@ export class WalkMe implements INodeType {
   default: '{}',
   description: 'Environment settings as JSON object',
 },
+{
+	displayName: 'Status',
+	name: 'status',
+	type: 'options',
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['getWalkthroughs'] } },
+	options: [
+		{ name: 'Active', value: 'active' },
+		{ name: 'Draft', value: 'draft' },
+		{ name: 'Published', value: 'published' },
+	],
+	default: '',
+	description: 'Filter walkthroughs by status',
+},
+{
+	displayName: 'Tag',
+	name: 'tag',
+	type: 'string',
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['getWalkthroughs'] } },
+	default: '',
+	description: 'Filter walkthroughs by tag',
+},
+{
+	displayName: 'Page',
+	name: 'page',
+	type: 'number',
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['getWalkthroughs'] } },
+	default: 1,
+	description: 'Page number for pagination',
+},
+{
+	displayName: 'Walkthrough ID',
+	name: 'walkthroughId',
+	type: 'string',
+	required: true,
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['getWalkthrough', 'updateWalkthrough', 'deleteWalkthrough', 'publishWalkthrough'] } },
+	default: '',
+	description: 'ID of the walkthrough',
+},
+{
+	displayName: 'Name',
+	name: 'name',
+	type: 'string',
+	required: true,
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['createWalkthrough', 'updateWalkthrough'] } },
+	default: '',
+	description: 'Name of the walkthrough',
+},
+{
+	displayName: 'Steps',
+	name: 'steps',
+	type: 'json',
+	required: true,
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['createWalkthrough', 'updateWalkthrough'] } },
+	default: '[]',
+	description: 'Steps of the walkthrough in JSON format',
+},
+{
+	displayName: 'Target URL',
+	name: 'targetUrl',
+	type: 'string',
+	required: true,
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['createWalkthrough'] } },
+	default: '',
+	description: 'Target URL where the walkthrough will be displayed',
+},
+{
+	displayName: 'Is Enabled',
+	name: 'isEnabled',
+	type: 'boolean',
+	displayOptions: { show: { resource: ['walkthroughs'], operation: ['createWalkthrough', 'updateWalkthrough'] } },
+	default: true,
+	description: 'Whether the walkthrough is enabled',
+},
+{
+  displayName: 'Status',
+  name: 'status',
+  type: 'options',
+  options: [
+    { name: 'Active', value: 'active' },
+    { name: 'Inactive', value: 'inactive' },
+    { name: 'Draft', value: 'draft' },
+  ],
+  displayOptions: { show: { resource: ['smartTips'], operation: ['getSmartTips'] } },
+  default: 'active',
+  description: 'Filter smart tips by status',
+},
+{
+  displayName: 'Category',
+  name: 'category',
+  type: 'string',
+  displayOptions: { show: { resource: ['smartTips'], operation: ['getSmartTips'] } },
+  default: '',
+  description: 'Filter smart tips by category',
+},
+{
+  displayName: 'Page',
+  name: 'page',
+  type: 'number',
+  displayOptions: { show: { resource: ['smartTips'], operation: ['getSmartTips'] } },
+  default: 1,
+  description: 'Page number for pagination',
+},
+{
+  displayName: 'Tip ID',
+  name: 'tipId',
+  type: 'string',
+  required: true,
+  displayOptions: { show: { resource: ['smartTips'], operation: ['getSmartTip', 'updateSmartTip', 'deleteSmartTip', 'getSmartTipAnalytics'] } },
+  default: '',
+  description: 'ID of the smart tip',
+},
+{
+  displayName: 'Title',
+  name: 'title',
+  type: 'string',
+  required: true,
+  displayOptions: { show: { resource: ['smartTips'], operation: ['createSmartTip', 'updateSmartTip'] } },
+  default: '',
+  description: 'Title of the smart tip',
+},
+{
+  displayName: 'Content',
+  name: 'content',
+  type: 'string',
+  required: true,
+  displayOptions: { show: { resource: ['smartTips'], operation: ['createSmartTip', 'updateSmartTip'] } },
+  default: '',
+  description: 'Content of the smart tip',
+},
+{
+  displayName: 'Trigger',
+  name: 'trigger',
+  type: 'string',
+  required: true,
+  displayOptions: { show: { resource: ['smartTips'], operation: ['createSmartTip'] } },
+  default: '',
+  description: 'Trigger condition for the smart tip',
+},
+{
+  displayName: 'Target Element',
+  name: 'targetElement',
+  type: 'string',
+  required: true,
+  displayOptions: { show: { resource: ['smartTips'], operation: ['createSmartTip'] } },
+  default: '',
+  description: 'CSS selector for the target element',
+},
+{
+  displayName: 'Is Enabled',
+  name: 'isEnabled',
+  type: 'boolean',
+  displayOptions: { show: { resource: ['smartTips'], operation: ['updateSmartTip'] } },
+  default: true,
+  description: 'Whether the smart tip is enabled',
+},
+{
+  displayName: 'Start Date',
+  name: 'startDate',
+  type: 'dateTime',
+  displayOptions: { show: { resource: ['smartTips'], operation: ['getSmartTipAnalytics'] } },
+  default: '',
+  description: 'Start date for analytics data (ISO 8601 format)',
+},
+{
+  displayName: 'End Date',
+  name: 'endDate',
+  type: 'dateTime',
+  displayOptions: { show: { resource: ['smartTips'], operation: ['getSmartTipAnalytics'] } },
+  default: '',
+  description: 'End date for analytics data (ISO 8601 format)',
+},
     ],
   };
 
@@ -1126,6 +1521,10 @@ export class WalkMe implements INodeType {
         return [await executeSegmentsOperations.call(this, items)];
       case 'organizations':
         return [await executeOrganizationsOperations.call(this, items)];
+      case 'walkthroughs':
+        return [await executeWalkthroughsOperations.call(this, items)];
+      case 'smartTips':
+        return [await executeSmartTipsOperations.call(this, items)];
       default:
         throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not supported`);
     }
@@ -1153,6 +1552,7 @@ async function executeUsersOperations(
           const organizationId = this.getNodeParameter('organizationId', i) as string;
           const page = this.getNodeParameter('page', i, 1) as number;
           const limit = this.getNodeParameter('limit', i, 50) as number;
+          const filter = this.getNodeParameter('filter', i) as string;
           
           const options: any = {
             method: 'GET',
@@ -1165,6 +1565,7 @@ async function executeUsersOperations(
               page,
               limit,
               organizationId,
+              ...(filter && { filter }),
             },
             json: true,
           };
@@ -1198,6 +1599,8 @@ async function executeUsersOperations(
           const email = this.getNodeParameter('email', i) as string;
           const name = this.getNodeParameter('name', i) as string;
           const organizationId = this.getNodeParameter('organizationId', i) as string;
+          const role = this.getNodeParameter('role', i) as string;
+          const department = this.getNodeParameter('department', i) as string;
           const properties = this.getNodeParameter('properties', i, {}) as any;
           
           const body: any = {
@@ -1205,6 +1608,9 @@ async function executeUsersOperations(
             name,
             organizationId,
           };
+          
+          if (role) body.role = role;
+          if (department) body.department = department;
           
           if (properties && properties.property && properties.property.length > 0) {
             const propertiesObj: any = {};
@@ -1237,12 +1643,16 @@ async function executeUsersOperations(
           const userId = this.getNodeParameter('userId', i) as string;
           const email = this.getNodeParameter('email', i, '') as string;
           const name = this.getNodeParameter('name', i, '') as string;
+          const role = this.getNodeParameter('role', i, '') as string;
+          const department = this.getNodeParameter('department', i, '') as string;
           const properties = this.getNodeParameter('properties', i, {}) as any;
           
           const body: any = {};
           
           if (email) body.email = email;
           if (name) body.name = name;
+          if (role) body.role = role;
+          if (department) body.department = department;
           
           if (properties && properties.property && properties.property.length > 0) {
             const propertiesObj: any = {};
@@ -1323,6 +1733,33 @@ async function executeUsersOperations(
             json: true,
           };
           
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getUserActivity': {
+          const userId = this.getNodeParameter('userId', i) as string;
+          const startDate = this.getNodeParameter('startDate', i) as string;
+          const endDate = this.getNodeParameter('endDate', i) as string;
+
+          const queryParams = new URLSearchParams();
+          if (startDate) {
+            queryParams.append('startDate', startDate);
+          }
+          if (endDate) {
+            queryParams.append('endDate', endDate);
+          }
+
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl}/users/${userId}/activity${queryParams.toString() ? '?' + queryParams.toString() : ''}`,
+            headers: {
+              'Authorization': `Bearer ${credentials.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
@@ -1540,301 +1977,22 @@ async function executeAnalyticsOperations(
           break;
         }
 
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({ json: result, pairedItem: { item: i } });
-      
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({ 
-          json: { error: error.message }, 
-          pairedItem: { item: i } 
-        });
-      } else {
-        if (error.response && error.response.body) {
-          throw new NodeApiError(this.getNode(), error.response.body);
-        } else {
-          throw new NodeOperationError(this.getNode(), error.message);
-        }
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeContentOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('walkmeApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getContent': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-          const contentType = this.getNodeParameter('contentType', i) as string;
-          const status = this.getNodeParameter('status', i) as string;
-
-          const params: any = {
-            organizationId,
-          };
-          if (contentType) {
-            params.contentType = contentType;
-          }
-          if (status) {
-            params.status = status;
-          }
-
-          const queryString = new URLSearchParams(params).toString();
-          const options: any = {
-            method: 'GET',
-            url: `https://api.walkme.com/v2/content?${queryString}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getContentItem': {
-          const contentId = this.getNodeParameter('contentId', i) as string;
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
+        case 'getInsights': {
+          const startDate = this.getNodeParameter('startDate', i) as string;
+          const endDate = this.getNodeParameter('endDate', i) as string;
+          const metric = this.getNodeParameter('metric', i) as string;
 
           const options: any = {
             method: 'GET',
-            url: `https://api.walkme.com/v2/content/${contentId}?organizationId=${organizationId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'createContent': {
-          const name = this.getNodeParameter('name', i) as string;
-          const type = this.getNodeParameter('type', i) as string;
-          const stepsParam = this.getNodeParameter('steps', i) as string;
-          const targetingParam = this.getNodeParameter('targeting', i) as string;
-
-          let steps: any = [];
-          let targeting: any = {};
-
-          try {
-            if (stepsParam) {
-              steps = JSON.parse(stepsParam);
-            }
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), `Invalid JSON in steps parameter: ${error.message}`);
-          }
-
-          try {
-            if (targetingParam) {
-              targeting = JSON.parse(targetingParam);
-            }
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), `Invalid JSON in targeting parameter: ${error.message}`);
-          }
-
-          const body: any = {
-            name,
-            type,
-            steps,
-            targeting,
-          };
-
-          const options: any = {
-            method: 'POST',
-            url: 'https://api.walkme.com/v2/content',
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-            body,
-          };
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'updateContent': {
-          const contentId = this.getNodeParameter('contentId', i) as string;
-          const name = this.getNodeParameter('name', i) as string;
-          const stepsParam = this.getNodeParameter('steps', i) as string;
-          const targetingParam = this.getNodeParameter('targeting', i) as string;
-
-          let steps: any = [];
-          let targeting: any = {};
-
-          try {
-            if (stepsParam) {
-              steps = JSON.parse(stepsParam);
-            }
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), `Invalid JSON in steps parameter: ${error.message}`);
-          }
-
-          try {
-            if (targetingParam) {
-              targeting = JSON.parse(targetingParam);
-            }
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), `Invalid JSON in targeting parameter: ${error.message}`);
-          }
-
-          const body: any = {
-            name,
-            steps,
-            targeting,
-          };
-
-          const options: any = {
-            method: 'PUT',
-            url: `https://api.walkme.com/v2/content/${contentId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-            body,
-          };
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'deleteContent': {
-          const contentId = this.getNodeParameter('contentId', i) as string;
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-
-          const options: any = {
-            method: 'DELETE',
-            url: `https://api.walkme.com/v2/content/${contentId}?organizationId=${organizationId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'publishContent': {
-          const contentId = this.getNodeParameter('contentId', i) as string;
-          const environment = this.getNodeParameter('environment', i) as string;
-
-          const body: any = {
-            environment,
-          };
-
-          const options: any = {
-            method: 'POST',
-            url: `https://api.walkme.com/v2/content/${contentId}/publish`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-            body,
-          };
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({
-          json: { error: error.message },
-          pairedItem: { item: i },
-        });
-      } else {
-        if (error.response && error.response.body) {
-          throw new NodeApiError(this.getNode(), error.response.body, { httpCode: error.response.statusCode });
-        } else {
-          throw new NodeOperationError(this.getNode(), error.message);
-        }
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeSegmentsOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('walkmeApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getSegments': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-          const status = this.getNodeParameter('status', i) as string;
-
-          const queryParams: any = {
-            organizationId,
-          };
-
-          if (status !== 'all') {
-            queryParams.status = status;
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/segments`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            qs: queryParams,
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getSegment': {
-          const segmentId = this.getNodeParameter('segmentId', i) as string;
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/segments/${segmentId}`,
+            url: `${credentials.baseUrl}/analytics/insights`,
             headers: {
               'Authorization': `Bearer ${credentials.apiKey}`,
               'Content-Type': 'application/json',
             },
             qs: {
-              organizationId,
+              startDate: new Date(startDate).toISOString(),
+              endDate: new Date(endDate).toISOString(),
+              metric,
             },
             json: true,
           };
@@ -1843,34 +2001,28 @@ async function executeSegmentsOperations(
           break;
         }
 
-        case 'createSegment': {
-          const name = this.getNodeParameter('name', i) as string;
-          const conditions = this.getNodeParameter('conditions', i) as string;
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
+        case 'getEngagement': {
+          const startDate = this.getNodeParameter('startDate', i) as string;
+          const endDate = this.getNodeParameter('endDate', i) as string;
+          const segmentId = this.getNodeParameter('segmentId', i) as string;
 
-          let parsedConditions: any;
-          try {
-            parsedConditions = JSON.parse(conditions);
-          } catch (error: any) {
-            throw new NodeOperationError(
-              this.getNode(),
-              `Invalid JSON in conditions parameter: ${error.message}`,
-              { itemIndex: i }
-            );
+          const qs: any = {
+            startDate: new Date(startDate).toISOString(),
+            endDate: new Date(endDate).toISOString(),
+          };
+
+          if (segmentId) {
+            qs.segmentId = segmentId;
           }
 
           const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/segments`,
+            method: 'GET',
+            url: `${credentials.baseUrl}/analytics/engagement`,
             headers: {
               'Authorization': `Bearer ${credentials.apiKey}`,
               'Content-Type': 'application/json',
             },
-            body: {
-              name,
-              conditions: parsedConditions,
-              organizationId,
-            },
+            qs,
             json: true,
           };
 
@@ -1878,57 +2030,22 @@ async function executeSegmentsOperations(
           break;
         }
 
-        case 'updateSegment': {
-          const segmentId = this.getNodeParameter('segmentId', i) as string;
-          const name = this.getNodeParameter('name', i) as string;
-          const conditions = this.getNodeParameter('conditions', i) as string;
-
-          const body: any = {};
-
-          if (name) {
-            body.name = name;
-          }
-
-          if (conditions) {
-            try {
-              body.conditions = JSON.parse(conditions);
-            } catch (error: any) {
-              throw new NodeOperationError(
-                this.getNode(),
-                `Invalid JSON in conditions parameter: ${error.message}`,
-                { itemIndex: i }
-              );
-            }
-          }
+        case 'getGoals': {
+          const startDate = this.getNodeParameter('startDate', i) as string;
+          const endDate = this.getNodeParameter('endDate', i) as string;
+          const goalId = this.getNodeParameter('goalId', i) as string;
 
           const options: any = {
-            method: 'PUT',
-            url: `${credentials.baseUrl}/segments/${segmentId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body,
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'deleteSegment': {
-          const segmentId = this.getNodeParameter('segmentId', i) as string;
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-
-          const options: any = {
-            method: 'DELETE',
-            url: `${credentials.baseUrl}/segments/${segmentId}`,
+            method: 'GET',
+            url: `${credentials.baseUrl}/analytics/goals`,
             headers: {
               'Authorization': `Bearer ${credentials.apiKey}`,
               'Content-Type': 'application/json',
             },
             qs: {
-              organizationId,
+              goalId,
+              startDate: new Date(startDate).toISOString(),
+              endDate: new Date(endDate).toISOString(),
             },
             json: true,
           };
@@ -1937,238 +2054,4 @@ async function executeSegmentsOperations(
           break;
         }
 
-        case 'getSegmentUsers': {
-          const segmentId = this.getNodeParameter('segmentId', i) as string;
-          const page = this.getNodeParameter('page', i) as number;
-          const limit = this.getNodeParameter('limit', i) as number;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/segments/${segmentId}/users`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            qs: {
-              page,
-              limit,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(
-            this.getNode(),
-            `Unknown operation: ${operation}`,
-            { itemIndex: i }
-          );
-      }
-
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({
-          json: { error: error.message },
-          pairedItem: { item: i },
-        });
-      } else {
-        throw new NodeApiError(this.getNode(), error, { itemIndex: i });
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeOrganizationsOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('walkmeApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getOrganizations': {
-          const page = this.getNodeParameter('page', i) as number;
-          const limit = this.getNodeParameter('limit', i) as number;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/organizations`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            qs: {
-              page,
-              limit,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getOrganization': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/organizations/${organizationId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'updateOrganization': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-          const name = this.getNodeParameter('name', i) as string;
-          const settings = this.getNodeParameter('settings', i) as string;
-
-          let parsedSettings: any;
-          try {
-            parsedSettings = JSON.parse(settings);
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), 'Invalid JSON in settings parameter', {
-              itemIndex: i,
-            });
-          }
-
-          const options: any = {
-            method: 'PUT',
-            url: `${credentials.baseUrl}/organizations/${organizationId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: {
-              name,
-              settings: parsedSettings,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getEnvironments': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/organizations/${organizationId}/environments`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'createEnvironment': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-          const environmentName = this.getNodeParameter('environmentName', i) as string;
-          const domain = this.getNodeParameter('domain', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/organizations/${organizationId}/environments`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: {
-              name: environmentName,
-              domain,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'updateEnvironment': {
-          const organizationId = this.getNodeParameter('organizationId', i) as string;
-          const envId = this.getNodeParameter('envId', i) as string;
-          const environmentSettings = this.getNodeParameter('environmentSettings', i) as string;
-
-          let parsedSettings: any;
-          try {
-            parsedSettings = JSON.parse(environmentSettings);
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), 'Invalid JSON in environment settings parameter', {
-              itemIndex: i,
-            });
-          }
-
-          const options: any = {
-            method: 'PUT',
-            url: `${credentials.baseUrl}/organizations/${organizationId}/environments/${envId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: {
-              settings: parsedSettings,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`, {
-            itemIndex: i,
-          });
-      }
-
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({
-          json: { error: error.message },
-          pairedItem: { item: i },
-        });
-      } else {
-        if (error.httpCode) {
-          throw new NodeApiError(this.getNode(), error, { itemIndex: i });
-        } else {
-          throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
-        }
-      }
-    }
-  }
-
-  return returnData;
-}
+        case 'get

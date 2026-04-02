@@ -8,25 +8,25 @@
 >
 > For licensing information, visit https://velobpa.com/licensing or contact licensing@velobpa.com.
 
-This n8n community node provides comprehensive integration with WalkMe's Digital Adoption Platform, enabling automation across 5 core resources including Users, Analytics, Content, Segments, and Organizations. Streamline user onboarding workflows, analyze digital adoption metrics, manage content lifecycle, segment user populations, and orchestrate organizational settings through n8n's visual automation interface.
+A comprehensive n8n community node for WalkMe's Digital Adoption Platform. This node provides access to 5 core resources enabling automation of user onboarding, analytics tracking, walkthrough management, and smart tip delivery within your digital experiences.
 
 ![n8n Community Node](https://img.shields.io/badge/n8n-Community%20Node-blue)
 ![License](https://img.shields.io/badge/license-BSL--1.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
-![WalkMe API](https://img.shields.io/badge/WalkMe-API%20Integration-orange)
-![Digital Adoption](https://img.shields.io/badge/Digital%20Adoption-Platform-green)
-![User Analytics](https://img.shields.io/badge/User-Analytics-purple)
+![Digital Adoption](https://img.shields.io/badge/Digital-Adoption-orange)
+![User Onboarding](https://img.shields.io/badge/User-Onboarding-green)
+![Analytics](https://img.shields.io/badge/Analytics-Tracking-purple)
 
 ## Features
 
-- **User Management** - Create, update, and manage user accounts with role assignments and permissions
-- **Analytics & Insights** - Extract digital adoption metrics, user engagement data, and performance analytics
-- **Content Operations** - Manage Smart Walk-Thrus, SmartTips, and other WalkMe content programmatically
-- **Segment Management** - Create and maintain user segments for targeted digital adoption campaigns
-- **Organization Control** - Configure organizational settings, domains, and administrative preferences
-- **Workflow Automation** - Trigger automated responses based on user behavior and adoption milestones
-- **Data Synchronization** - Sync user data between WalkMe and external systems seamlessly
-- **Bulk Operations** - Perform batch operations across users, content, and segments efficiently
+- **User Management** - Create, update, delete, and retrieve WalkMe users with full profile management
+- **Analytics Integration** - Access comprehensive usage analytics, engagement metrics, and performance data
+- **Walkthrough Automation** - Manage interactive walkthroughs, publish content, and control user flows
+- **SmartTips Control** - Create and manage contextual tips and guidance elements
+- **Segment Management** - Define and manage user segments for targeted experiences
+- **Real-time Sync** - Seamless integration with WalkMe's platform for live data updates
+- **Bulk Operations** - Efficient batch processing for large-scale user and content management
+- **Error Handling** - Comprehensive error handling with detailed logging and recovery options
 
 ## Installation
 
@@ -63,7 +63,7 @@ n8n start
 |-------|-------------|----------|
 | API Key | Your WalkMe API key from the Admin Center | Yes |
 | Environment | WalkMe environment (production/staging) | Yes |
-| Base URL | Custom API base URL (if using private cloud) | No |
+| Base URL | Custom API base URL (if applicable) | No |
 
 ## Resources & Operations
 
@@ -71,132 +71,124 @@ n8n start
 
 | Operation | Description |
 |-----------|-------------|
-| Create | Create a new user account in WalkMe |
-| Get | Retrieve user information by ID or email |
-| Update | Update user profile, roles, or permissions |
-| Delete | Remove user account from the system |
+| Create | Create a new user in WalkMe system |
+| Update | Update existing user information and properties |
+| Delete | Remove a user from the WalkMe system |
+| Get | Retrieve user details by ID or email |
 | List | Get paginated list of users with filtering options |
-| Get Activity | Retrieve user's activity and engagement metrics |
-| Reset Password | Initiate password reset for specified user |
-| Assign Role | Assign or modify user roles and permissions |
+| Bulk Import | Import multiple users in a single operation |
 
 ### 2. Analytics
 
 | Operation | Description |
 |-----------|-------------|
-| Get Usage Stats | Retrieve overall platform usage statistics |
-| Get User Engagement | Get detailed user engagement metrics |
-| Get Content Performance | Analyze performance of specific content items |
-| Get Completion Rates | Retrieve completion rates for Smart Walk-Thrus |
-| Get Session Data | Extract user session data and behavior patterns |
-| Export Report | Generate and export analytics reports |
-| Get Funnel Analysis | Analyze user journey and conversion funnels |
-| Get Heatmap Data | Retrieve click and interaction heatmap data |
+| Get Events | Retrieve user interaction events and tracking data |
+| Get Metrics | Fetch engagement metrics and KPIs |
+| Get Reports | Generate and retrieve analytics reports |
+| Get Usage Stats | Access usage statistics and performance data |
+| Export Data | Export analytics data in various formats |
 
-### 3. Content
+### 3. Walkthroughs
 
 | Operation | Description |
 |-----------|-------------|
-| Create | Create new Smart Walk-Thru, SmartTips, or other content |
-| Get | Retrieve content item details and configuration |
-| Update | Modify existing content properties and settings |
-| Delete | Remove content item from the system |
-| List | Get paginated list of content with filtering |
-| Publish | Publish content to make it available to users |
-| Unpublish | Remove content from active distribution |
-| Duplicate | Create copy of existing content item |
-| Get Statistics | Retrieve performance statistics for content |
+| Create | Create new interactive walkthroughs |
+| Update | Modify existing walkthrough content and settings |
+| Delete | Remove walkthroughs from the system |
+| Get | Retrieve walkthrough details and configuration |
+| List | Get all walkthroughs with filtering options |
+| Publish | Publish walkthroughs to make them live |
+| Unpublish | Unpublish walkthroughs to stop them |
 
-### 4. Segments
+### 4. SmartTips
 
 | Operation | Description |
 |-----------|-------------|
-| Create | Create new user segment with defined criteria |
-| Get | Retrieve segment configuration and member count |
-| Update | Modify segment criteria and properties |
-| Delete | Remove segment from the system |
-| List | Get all segments with filtering options |
-| Add Users | Add specific users to a segment |
-| Remove Users | Remove users from a segment |
-| Get Members | Retrieve list of users in a segment |
+| Create | Create new contextual tips and guidance |
+| Update | Modify existing SmartTip content and triggers |
+| Delete | Remove SmartTips from the system |
+| Get | Retrieve SmartTip details and configuration |
+| List | Get all SmartTips with filtering and search |
+| Activate | Activate SmartTips for user display |
+| Deactivate | Deactivate SmartTips to hide them |
 
-### 5. Organizations
+### 5. Segments
 
 | Operation | Description |
 |-----------|-------------|
-| Get Settings | Retrieve organization configuration settings |
-| Update Settings | Modify organizational preferences and policies |
-| Get Domains | List configured domains for the organization |
-| Add Domain | Add new domain to organization configuration |
-| Remove Domain | Remove domain from organization |
-| Get Branding | Retrieve branding and styling configuration |
-| Update Branding | Modify organization branding and appearance |
-| Get Integrations | List active integrations and connections |
+| Create | Create new user segments with criteria |
+| Update | Modify segment rules and conditions |
+| Delete | Remove segments from the system |
+| Get | Retrieve segment details and user count |
+| List | Get all segments with metadata |
+| Add Users | Add users to specific segments |
+| Remove Users | Remove users from segments |
 
 ## Usage Examples
 
 ```javascript
-// Create a new user and assign to segment
+// Create a new user with custom properties
 {
-  "name": "Create User",
-  "type": "n8n-nodes-walkme.walkMe",
-  "parameters": {
-    "resource": "users",
-    "operation": "create",
-    "email": "john.doe@company.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "role": "end_user",
-    "segments": ["new_employees", "sales_team"]
+  "email": "john.doe@company.com",
+  "name": "John Doe",
+  "role": "developer",
+  "department": "engineering",
+  "customProperties": {
+    "onboardingComplete": false,
+    "skillLevel": "intermediate"
   }
 }
 ```
 
 ```javascript
-// Get content performance analytics
+// Get analytics for walkthrough engagement
 {
-  "name": "Get Analytics",
-  "type": "n8n-nodes-walkme.walkMe",
-  "parameters": {
-    "resource": "analytics",
-    "operation": "getContentPerformance",
-    "contentId": "wt_12345",
-    "dateRange": "last_30_days",
-    "metrics": ["views", "completions", "dropoff_rate"]
-  }
+  "resourceType": "walkthroughs",
+  "dateRange": {
+    "start": "2024-01-01",
+    "end": "2024-01-31"
+  },
+  "metrics": ["completion_rate", "engagement_time", "user_count"],
+  "segmentId": "enterprise_users"
 }
 ```
 
 ```javascript
-// Update Smart Walk-Thru content
+// Create a targeted SmartTip
 {
-  "name": "Update Content",
-  "type": "n8n-nodes-walkme.walkMe",
-  "parameters": {
-    "resource": "content",
-    "operation": "update",
-    "contentId": "wt_67890",
-    "title": "Updated Onboarding Flow",
-    "description": "Revised user onboarding process",
-    "status": "published"
-  }
-}
-```
-
-```javascript
-// Create targeted user segment
-{
-  "name": "Create Segment",
-  "type": "n8n-nodes-walkme.walkMe",
-  "parameters": {
-    "resource": "segments",
-    "operation": "create",
-    "name": "Power Users",
-    "criteria": {
-      "loginFrequency": "daily",
-      "completedWalkthroughs": "> 5",
-      "department": "engineering"
+  "title": "New Feature Available",
+  "content": "Check out our new dashboard analytics feature!",
+  "trigger": {
+    "selector": "#dashboard-menu",
+    "event": "hover"
+  },
+  "targeting": {
+    "segments": ["power_users"],
+    "userProperties": {
+      "featureAccess": "premium"
     }
+  }
+}
+```
+
+```javascript
+// Bulk import users with segment assignment
+{
+  "users": [
+    {
+      "email": "user1@company.com",
+      "name": "User One",
+      "segments": ["new_users", "sales_team"]
+    },
+    {
+      "email": "user2@company.com", 
+      "name": "User Two",
+      "segments": ["existing_users", "support_team"]
+    }
+  ],
+  "options": {
+    "sendWelcomeEmail": true,
+    "autoAssignWalkthrough": "onboarding_flow"
   }
 }
 ```
@@ -205,12 +197,12 @@ n8n start
 
 | Error | Description | Solution |
 |-------|-------------|----------|
-| 401 Unauthorized | Invalid API key or expired credentials | Verify API key in credentials configuration |
-| 403 Forbidden | Insufficient permissions for requested operation | Check user role and API key permissions |
-| 404 Not Found | Requested resource (user, content, segment) not found | Verify resource ID exists and is accessible |
-| 429 Rate Limited | API rate limit exceeded | Implement delays between requests or reduce frequency |
-| 400 Bad Request | Invalid parameters or malformed request data | Review parameter format and required fields |
-| 500 Internal Server Error | WalkMe API service error | Check WalkMe service status and retry later |
+| Authentication Failed | Invalid or expired API key | Verify API key in credentials and check expiration |
+| Rate Limit Exceeded | Too many requests to WalkMe API | Implement delays between requests or use bulk operations |
+| Resource Not Found | Requested user, walkthrough, or segment doesn't exist | Verify resource ID and check if resource was deleted |
+| Validation Error | Invalid data format or missing required fields | Check request payload against WalkMe API documentation |
+| Permission Denied | API key lacks required permissions | Contact WalkMe admin to update API key permissions |
+| Server Error | WalkMe service temporarily unavailable | Retry request after delay or check WalkMe status page |
 
 ## Development
 
@@ -255,5 +247,5 @@ Contributions are welcome! Please ensure:
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/Velocity-BPA/n8n-nodes-walkme/issues)
-- **WalkMe API Documentation**: [WalkMe Developer Portal](https://developers.walkme.com/)
-- **WalkMe Community**: [WalkMe Community Hub](https://community.walkme.com/)
+- **WalkMe API Documentation**: [WalkMe Developer Center](https://developers.walkme.com)
+- **WalkMe Community**: [WalkMe Community Portal](https://community.walkme.com)

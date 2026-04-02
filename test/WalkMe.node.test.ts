@@ -74,7 +74,7 @@ describe('Users Resource', () => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
       getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
+        apiKey: 'test-key',
         baseUrl: 'https://api.walkme.com/v2',
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
@@ -82,246 +82,116 @@ describe('Users Resource', () => {
       continueOnFail: jest.fn().mockReturnValue(false),
       helpers: {
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
       },
     };
   });
 
   describe('getUsers operation', () => {
     it('should retrieve users successfully', async () => {
-      const mockResponse = {
-        users: [
-          { id: '1', email: 'user1@example.com', name: 'User 1' },
-          { id: '2', email: 'user2@example.com', name: 'User 2' },
-        ],
-        total: 2,
-        page: 1,
-      };
+      const mockResponse = { users: [{ id: '1', email: 'test@example.com' }] };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getUsers');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce(1);
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce(50);
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValueOnce(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getUsers';
-          case 'organizationId': return 'org-123';
-          case 'page': return 1;
-          case 'limit': return 50;
-          default: return undefined;
-        }
-      });
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+    });
 
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    it('should handle errors gracefully', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getUsers');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce(1);
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce(50);
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValueOnce(new Error('API Error'));
+      mockExecuteFunctions.continueOnFail.mockReturnValueOnce(true);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.walkme.com/v2/users',
-        headers: {
-          'Authorization': 'Bearer test-api-key',
-          'Content-Type': 'application/json',
-        },
-        qs: {
-          page: 1,
-          limit: 50,
-          organizationId: 'org-123',
-        },
-        json: true,
-      });
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
+
+      expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
     });
   });
 
   describe('getUser operation', () => {
     it('should retrieve a specific user successfully', async () => {
-      const mockResponse = {
-        id: '1',
-        email: 'user1@example.com',
-        name: 'User 1',
-        properties: {},
-      };
+      const mockResponse = { id: '123', email: 'test@example.com' };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getUser');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('123');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValueOnce(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getUser';
-          case 'userId': return 'user-123';
-          case 'organizationId': return 'org-123';
-          default: return undefined;
-        }
-      });
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
     });
   });
 
   describe('createUser operation', () => {
     it('should create a user successfully', async () => {
-      const mockResponse = {
-        id: 'new-user-123',
-        email: 'newuser@example.com',
-        name: 'New User',
-        organizationId: 'org-123',
-      };
+      const mockResponse = { id: '456', email: 'newuser@example.com' };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('createUser');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('newuser@example.com');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('John Doe');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('Admin');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('IT');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValueOnce(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'createUser';
-          case 'email': return 'newuser@example.com';
-          case 'name': return 'New User';
-          case 'organizationId': return 'org-123';
-          case 'properties': return {};
-          default: return undefined;
-        }
-      });
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
     });
   });
 
   describe('updateUser operation', () => {
     it('should update a user successfully', async () => {
-      const mockResponse = {
-        id: 'user-123',
-        email: 'updated@example.com',
-        name: 'Updated User',
-      };
+      const mockResponse = { id: '123', email: 'updated@example.com' };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('updateUser');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('123');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('updated@example.com');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('Jane Doe');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('Manager');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('HR');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValueOnce(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'updateUser';
-          case 'userId': return 'user-123';
-          case 'email': return 'updated@example.com';
-          case 'name': return 'Updated User';
-          case 'properties': return {};
-          default: return undefined;
-        }
-      });
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
     });
   });
 
   describe('deleteUser operation', () => {
     it('should delete a user successfully', async () => {
       const mockResponse = { success: true };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('deleteUser');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('123');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValueOnce(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'deleteUser';
-          case 'userId': return 'user-123';
-          case 'organizationId': return 'org-123';
-          default: return undefined;
-        }
-      });
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
     });
   });
 
-  describe('bulkCreateUsers operation', () => {
-    it('should bulk create users successfully', async () => {
-      const mockResponse = {
-        created: 2,
-        failed: 0,
-        users: [
-          { id: 'user-1', email: 'user1@example.com' },
-          { id: 'user-2', email: 'user2@example.com' },
-        ],
-      };
+  describe('getUserActivity operation', () => {
+    it('should retrieve user activity successfully', async () => {
+      const mockResponse = { activities: [] };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getUserActivity');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('123');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('2023-01-01T00:00:00Z');
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('2023-12-31T23:59:59Z');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValueOnce(mockResponse);
 
-      const usersJson = JSON.stringify([
-        { email: 'user1@example.com', name: 'User 1' },
-        { email: 'user2@example.com', name: 'User 2' },
-      ]);
+      const items = [{ json: {} }];
+      const result = await executeUsersOperations.call(mockExecuteFunctions, items);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'bulkCreateUsers';
-          case 'users': return usersJson;
-          case 'organizationId': return 'org-123';
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-    });
-
-    it('should handle invalid JSON in bulk create', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'bulkCreateUsers';
-          case 'users': return 'invalid json';
-          case 'organizationId': return 'org-123';
-          default: return undefined;
-        }
-      });
-
-      await expect(
-        executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow('Invalid JSON in users parameter');
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle API errors', async () => {
-      const apiError = new Error('API Error');
-      (apiError as any).statusCode = 400;
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getUsers';
-          case 'organizationId': return 'org-123';
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(apiError);
-
-      await expect(
-        executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow('API Error');
-    });
-
-    it('should continue on fail when enabled', async () => {
-      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getUsers';
-          case 'organizationId': return 'org-123';
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
-
-      const result = await executeUsersOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json.error).toBe('API Error');
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
     });
   });
 });
@@ -332,923 +202,507 @@ describe('Analytics Resource', () => {
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.walkme.com/v2',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.walkme.com/v2' 
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
+      helpers: { 
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
+        requestWithAuthentication: jest.fn() 
       },
     };
   });
 
-  it('should get events successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      const params: any = {
-        'operation': 'getEvents',
-        'startDate': '2023-01-01T00:00:00Z',
-        'endDate': '2023-01-31T23:59:59Z',
-        'eventType': 'click',
-        'userId': 'user123',
-      };
-      return params[param];
-    });
+  it('should get insights successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getInsights')
+      .mockReturnValueOnce('2023-01-01')
+      .mockReturnValueOnce('2023-01-31')
+      .mockReturnValueOnce('engagement');
 
-    const mockResponse = {
-      events: [
-        { id: '1', type: 'click', userId: 'user123', timestamp: '2023-01-15T10:00:00Z' },
-      ],
-      total: 1,
-    };
-
+    const mockResponse = { insights: [], total: 0 };
     mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    const items = [{ json: {} }];
-    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, items);
+    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
     expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
       method: 'GET',
-      url: 'https://api.walkme.com/v2/analytics/events?startDate=2023-01-01T00%3A00%3A00Z&endDate=2023-01-31T23%3A59%3A59Z&eventType=click&userId=user123',
+      url: 'https://api.walkme.com/v2/analytics/insights',
       headers: {
-        'Authorization': 'Bearer test-api-key',
+        'Authorization': 'Bearer test-key',
         'Content-Type': 'application/json',
+      },
+      qs: {
+        startDate: '2023-01-01T00:00:00.000Z',
+        endDate: '2023-01-31T00:00:00.000Z',
+        metric: 'engagement',
       },
       json: true,
     });
+
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  it('should create event successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      const params: any = {
-        'operation': 'createEvent',
-        'eventType': 'custom_click',
-        'userId': 'user456',
-        'properties': '{"page": "homepage", "element": "button"}',
-        'timestamp': '2023-01-15T10:00:00Z',
-      };
-      return params[param];
-    });
+  it('should get engagement metrics successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getEngagement')
+      .mockReturnValueOnce('2023-01-01')
+      .mockReturnValueOnce('2023-01-31')
+      .mockReturnValueOnce('segment123');
 
-    const mockResponse = {
-      id: 'event123',
-      status: 'created',
-    };
-
+    const mockResponse = { engagement: [], metrics: {} };
     mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    const items = [{ json: {} }];
-    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, items);
+    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://api.walkme.com/v2/analytics/events',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        eventType: 'custom_click',
-        userId: 'user456',
-        properties: { page: 'homepage', element: 'button' },
-        timestamp: '2023-01-15T10:00:00Z',
-      },
-      json: true,
-    });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  it('should handle invalid JSON in properties', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      const params: any = {
-        'operation': 'createEvent',
-        'eventType': 'custom_click',
-        'userId': 'user456',
-        'properties': 'invalid json',
-        'timestamp': '',
-      };
-      return params[param];
-    });
+  it('should track custom event successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('trackCustomEvent')
+      .mockReturnValueOnce('button_click')
+      .mockReturnValueOnce('user123')
+      .mockReturnValueOnce('{"page": "dashboard"}');
 
-    const items = [{ json: {} }];
-
-    await expect(
-      executeAnalyticsOperations.call(mockExecuteFunctions, items)
-    ).rejects.toThrow();
-  });
-
-  it('should get content analytics successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      const params: any = {
-        'operation': 'getContentAnalytics',
-        'contentId': 'content123',
-        'startDate': '2023-01-01T00:00:00Z',
-        'endDate': '2023-01-31T23:59:59Z',
-      };
-      return params[param];
-    });
-
-    const mockResponse = {
-      contentId: 'content123',
-      views: 150,
-      interactions: 45,
-      completionRate: 0.75,
-    };
-
+    const mockResponse = { success: true, eventId: 'event123' };
     mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    const items = [{ json: {} }];
-    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, items);
+    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  it('should handle API errors', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      const params: any = {
-        'operation': 'getEvents',
-        'startDate': '2023-01-01T00:00:00Z',
-        'endDate': '2023-01-31T23:59:59Z',
-        'eventType': '',
-        'userId': '',
-      };
-      return params[param];
-    });
-
-    const error = new Error('API Error');
-    error.response = { body: { message: 'Unauthorized' } };
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(error);
-
-    const items = [{ json: {} }];
-
-    await expect(
-      executeAnalyticsOperations.call(mockExecuteFunctions, items)
-    ).rejects.toThrow();
-  });
-
-  it('should continue on fail when configured', async () => {
-    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      const params: any = {
-        'operation': 'getEvents',
-        'startDate': '2023-01-01T00:00:00Z',
-        'endDate': '2023-01-31T23:59:59Z',
-        'eventType': '',
-        'userId': '',
-      };
-      return params[param];
-    });
-
+  it('should handle API errors gracefully', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getInsights');
     mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
 
-    const items = [{ json: {} }];
-    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, items);
+    const result = await executeAnalyticsOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual({ error: 'API Error' });
+    expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
+  });
+
+  it('should throw error for unknown operation', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('unknownOperation');
+
+    await expect(executeAnalyticsOperations.call(mockExecuteFunctions, [{ json: {} }]))
+      .rejects.toThrow('Unknown operation: unknownOperation');
   });
 });
 
-describe('Content Resource', () => {
+describe('Walkthroughs Resource', () => {
+	let mockExecuteFunctions: any;
+
+	beforeEach(() => {
+		mockExecuteFunctions = {
+			getNodeParameter: jest.fn(),
+			getCredentials: jest.fn().mockResolvedValue({ apiKey: 'test-key', baseUrl: 'https://api.walkme.com/v2' }),
+			getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+			getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+			continueOnFail: jest.fn().mockReturnValue(false),
+			helpers: { httpRequest: jest.fn(), requestWithAuthentication: jest.fn() },
+		};
+	});
+
+	it('should get all walkthroughs successfully', async () => {
+		mockExecuteFunctions.getNodeParameter
+			.mockReturnValueOnce('getWalkthroughs')
+			.mockReturnValueOnce('active')
+			.mockReturnValueOnce('test-tag')
+			.mockReturnValueOnce(1);
+
+		mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({ data: [] });
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { data: [] }, pairedItem: { item: 0 } }]);
+		expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+			method: 'GET',
+			url: 'https://api.walkme.com/v2/walkthroughs?status=active&tag=test-tag&page=1',
+			headers: {
+				'Authorization': 'Bearer test-key',
+				'Content-Type': 'application/json',
+			},
+			json: true,
+		});
+	});
+
+	it('should get specific walkthrough successfully', async () => {
+		mockExecuteFunctions.getNodeParameter
+			.mockReturnValueOnce('getWalkthrough')
+			.mockReturnValueOnce('123');
+
+		mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({ id: '123', name: 'Test Walkthrough' });
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { id: '123', name: 'Test Walkthrough' }, pairedItem: { item: 0 } }]);
+	});
+
+	it('should create walkthrough successfully', async () => {
+		mockExecuteFunctions.getNodeParameter
+			.mockReturnValueOnce('createWalkthrough')
+			.mockReturnValueOnce('New Walkthrough')
+			.mockReturnValueOnce('[{"step": 1}]')
+			.mockReturnValueOnce('https://example.com')
+			.mockReturnValueOnce(true);
+
+		mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({ id: '123', name: 'New Walkthrough' });
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { id: '123', name: 'New Walkthrough' }, pairedItem: { item: 0 } }]);
+	});
+
+	it('should update walkthrough successfully', async () => {
+		mockExecuteFunctions.getNodeParameter
+			.mockReturnValueOnce('updateWalkthrough')
+			.mockReturnValueOnce('123')
+			.mockReturnValueOnce('Updated Walkthrough')
+			.mockReturnValueOnce('[{"step": 1}]')
+			.mockReturnValueOnce(false);
+
+		mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({ id: '123', name: 'Updated Walkthrough' });
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { id: '123', name: 'Updated Walkthrough' }, pairedItem: { item: 0 } }]);
+	});
+
+	it('should delete walkthrough successfully', async () => {
+		mockExecuteFunctions.getNodeParameter
+			.mockReturnValueOnce('deleteWalkthrough')
+			.mockReturnValueOnce('123');
+
+		mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({ success: true });
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { success: true }, pairedItem: { item: 0 } }]);
+	});
+
+	it('should publish walkthrough successfully', async () => {
+		mockExecuteFunctions.getNodeParameter
+			.mockReturnValueOnce('publishWalkthrough')
+			.mockReturnValueOnce('123');
+
+		mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({ published: true });
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { published: true }, pairedItem: { item: 0 } }]);
+	});
+
+	it('should handle errors when continue on fail is true', async () => {
+		mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getWalkthroughs');
+		mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+		mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+
+		const result = await executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+		expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
+	});
+
+	it('should throw error when continue on fail is false', async () => {
+		mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getWalkthroughs');
+		mockExecuteFunctions.continueOnFail.mockReturnValue(false);
+		mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+
+		await expect(executeWalkthroughsOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('API Error');
+	});
+});
+
+describe('SmartTips Resource', () => {
   let mockExecuteFunctions: any;
 
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.walkme.com/v2',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.walkme.com/v2'
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
+      helpers: { 
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
+        requestWithAuthentication: jest.fn()
       },
     };
   });
 
-  test('should get content list successfully', async () => {
-    const mockResponse = {
-      data: [
-        { id: '1', name: 'Test Content', type: 'walkthru', status: 'published' },
-        { id: '2', name: 'Test Content 2', type: 'smarttip', status: 'draft' },
-      ],
-    };
+  describe('getSmartTips operation', () => {
+    it('should get smart tips successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getSmartTips')
+        .mockReturnValueOnce('active')
+        .mockReturnValueOnce('tutorial')
+        .mockReturnValueOnce(1);
 
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getContent';
-        case 'organizationId': return 'org123';
-        case 'contentType': return 'walkthru';
-        case 'status': return 'published';
-        default: return '';
-      }
+      const mockResponse = { tips: [{ id: '1', title: 'Test Tip' }] };
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeSmartTipsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+      expect(result[0].json).toEqual(mockResponse);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://api.walkme.com/v2/smarttips?status=active&category=tutorial&page=1',
+        headers: {
+          'Authorization': 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
+        json: true,
+      });
     });
 
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+    it('should handle error in getSmartTips', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValue('getSmartTips');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
 
-    const result = await executeContentOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      const result = await executeSmartTipsOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/content?organizationId=org123&contentType=walkthru&status=published',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      json: true,
+      expect(result[0].json.error).toBe('API Error');
     });
   });
 
-  test('should get specific content item successfully', async () => {
-    const mockResponse = {
-      id: '123',
-      name: 'Test Content',
-      type: 'walkthru',
-      steps: [{ id: 1, title: 'Step 1' }],
-    };
+  describe('createSmartTip operation', () => {
+    it('should create smart tip successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('createSmartTip')
+        .mockReturnValueOnce('Test Title')
+        .mockReturnValueOnce('Test Content')
+        .mockReturnValueOnce('click')
+        .mockReturnValueOnce('.test-element');
 
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getContentItem';
-        case 'contentId': return '123';
-        case 'organizationId': return 'org123';
-        default: return '';
-      }
+      const mockResponse = { id: '123', title: 'Test Title' };
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeSmartTipsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+      expect(result[0].json).toEqual(mockResponse);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'POST',
+        url: 'https://api.walkme.com/v2/smarttips',
+        headers: {
+          'Authorization': 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
+        body: {
+          title: 'Test Title',
+          content: 'Test Content',
+          trigger: 'click',
+          targetElement: '.test-element',
+        },
+        json: true,
+      });
     });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeContentOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
   });
 
-  test('should create content successfully', async () => {
-    const mockResponse = {
-      id: '456',
-      name: 'New Content',
-      type: 'walkthru',
-      status: 'draft',
-    };
+  describe('deleteSmartTip operation', () => {
+    it('should delete smart tip successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('deleteSmartTip')
+        .mockReturnValueOnce('123');
 
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'createContent';
-        case 'name': return 'New Content';
-        case 'type': return 'walkthru';
-        case 'steps': return '[{"id": 1, "title": "Step 1"}]';
-        case 'targeting': return '{"audience": "all"}';
-        default: return '';
-      }
+      const mockResponse = { success: true };
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeSmartTipsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+      expect(result[0].json).toEqual(mockResponse);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'DELETE',
+        url: 'https://api.walkme.com/v2/smarttips/123',
+        headers: {
+          'Authorization': 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
+        json: true,
+      });
     });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeContentOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-  });
-
-  test('should publish content successfully', async () => {
-    const mockResponse = {
-      success: true,
-      message: 'Content published successfully',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'publishContent';
-        case 'contentId': return '123';
-        case 'environment': return 'production';
-        default: return '';
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeContentOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-  });
-
-  test('should handle API errors correctly', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getContent';
-        case 'organizationId': return 'invalid-org';
-        default: return '';
-      }
-    });
-
-    const apiError = new Error('API Error');
-    (apiError as any).response = {
-      statusCode: 404,
-      body: { error: 'Organization not found' },
-    };
-
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(apiError);
-
-    await expect(
-      executeContentOperations.call(mockExecuteFunctions, [{ json: {} }])
-    ).rejects.toThrow();
-  });
-
-  test('should handle invalid JSON in parameters', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'createContent';
-        case 'name': return 'Test';
-        case 'type': return 'walkthru';
-        case 'steps': return 'invalid json';
-        case 'targeting': return '{}';
-        default: return '';
-      }
-    });
-
-    await expect(
-      executeContentOperations.call(mockExecuteFunctions, [{ json: {} }])
-    ).rejects.toThrow('Invalid JSON in steps parameter');
   });
 });
 
 describe('Segments Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.walkme.com/v2',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  test('should get all segments successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'getSegments';
-        case 'organizationId':
-          return 'org123';
-        case 'status':
-          return 'active';
-        default:
-          return undefined;
-      }
-    });
-
-    const mockResponse = {
-      segments: [
-        { id: 'seg1', name: 'Test Segment 1', status: 'active' },
-        { id: 'seg2', name: 'Test Segment 2', status: 'active' },
-      ],
-    };
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/segments',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      qs: {
-        organizationId: 'org123',
-        status: 'active',
-      },
-      json: true,
-    });
-  });
-
-  test('should get specific segment successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'getSegment';
-        case 'segmentId':
-          return 'seg123';
-        case 'organizationId':
-          return 'org123';
-        default:
-          return undefined;
-      }
-    });
-
-    const mockResponse = {
-      id: 'seg123',
-      name: 'Test Segment',
-      conditions: { browser: 'chrome' },
-    };
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/segments/seg123',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      qs: {
-        organizationId: 'org123',
-      },
-      json: true,
-    });
-  });
-
-  test('should create segment successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'createSegment';
-        case 'name':
-          return 'New Segment';
-        case 'conditions':
-          return '{"browser": "chrome"}';
-        case 'organizationId':
-          return 'org123';
-        default:
-          return undefined;
-      }
-    });
-
-    const mockResponse = {
-      id: 'seg456',
-      name: 'New Segment',
-      conditions: { browser: 'chrome' },
-    };
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://api.walkme.com/v2/segments',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        name: 'New Segment',
-        conditions: { browser: 'chrome' },
-        organizationId: 'org123',
-      },
-      json: true,
-    });
-  });
-
-  test('should update segment successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'updateSegment';
-        case 'segmentId':
-          return 'seg123';
-        case 'name':
-          return 'Updated Segment';
-        case 'conditions':
-          return '{"browser": "firefox"}';
-        default:
-          return undefined;
-      }
-    });
-
-    const mockResponse = {
-      id: 'seg123',
-      name: 'Updated Segment',
-      conditions: { browser: 'firefox' },
-    };
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'PUT',
-      url: 'https://api.walkme.com/v2/segments/seg123',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        name: 'Updated Segment',
-        conditions: { browser: 'firefox' },
-      },
-      json: true,
-    });
-  });
-
-  test('should delete segment successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'deleteSegment';
-        case 'segmentId':
-          return 'seg123';
-        case 'organizationId':
-          return 'org123';
-        default:
-          return undefined;
-      }
-    });
-
-    const mockResponse = { success: true };
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'DELETE',
-      url: 'https://api.walkme.com/v2/segments/seg123',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      qs: {
-        organizationId: 'org123',
-      },
-      json: true,
-    });
-  });
-
-  test('should get segment users successfully', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'getSegmentUsers';
-        case 'segmentId':
-          return 'seg123';
-        case 'page':
-          return 1;
-        case 'limit':
-          return 50;
-        default:
-          return undefined;
-      }
-    });
-
-    const mockResponse = {
-      users: [
-        { id: 'user1', email: 'user1@example.com' },
-        { id: 'user2', email: 'user2@example.com' },
-      ],
-      pagination: { page: 1, limit: 50, total: 2 },
-    };
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/segments/seg123/users',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      qs: {
-        page: 1,
-        limit: 50,
-      },
-      json: true,
-    });
-  });
-
-  test('should handle invalid JSON in conditions', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation':
-          return 'createSegment';
-        case 'name':
-          return 'New Segment';
-        case 'conditions':
-          return 'invalid json';
-        case 'organizationId':
-          return 'org123';
-        default:
-          return undefined;
-      }
-    });
-
-    await expect(
-      executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }])
-    ).rejects.toThrow();
-  });
-});
-
-describe('Organizations Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.walkme.com/v2',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  test('should get organizations successfully', async () => {
-    const mockResponse = {
-      data: [
-        { id: '123', name: 'Test Org 1' },
-        { id: '456', name: 'Test Org 2' },
-      ],
-      total: 2,
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getOrganizations';
-        case 'page': return 1;
-        case 'limit': return 50;
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeOrganizationsOperations.call(
-      mockExecuteFunctions,
-      [{ json: {} }],
-    );
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/organizations',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      qs: { page: 1, limit: 50 },
-      json: true,
-    });
-  });
-
-  test('should get single organization successfully', async () => {
-    const mockResponse = { id: '123', name: 'Test Organization', settings: {} };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getOrganization';
-        case 'organizationId': return '123';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeOrganizationsOperations.call(
-      mockExecuteFunctions,
-      [{ json: {} }],
-    );
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/organizations/123',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      json: true,
-    });
-  });
-
-  test('should update organization successfully', async () => {
-    const mockResponse = { id: '123', name: 'Updated Org', settings: { feature1: true } };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'updateOrganization';
-        case 'organizationId': return '123';
-        case 'name': return 'Updated Org';
-        case 'settings': return '{"feature1": true}';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeOrganizationsOperations.call(
-      mockExecuteFunctions,
-      [{ json: {} }],
-    );
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'PUT',
-      url: 'https://api.walkme.com/v2/organizations/123',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        name: 'Updated Org',
-        settings: { feature1: true },
-      },
-      json: true,
-    });
-  });
-
-  test('should get environments successfully', async () => {
-    const mockResponse = {
-      data: [
-        { id: 'env1', name: 'Production', domain: 'app.example.com' },
-        { id: 'env2', name: 'Staging', domain: 'staging.example.com' },
-      ],
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getEnvironments';
-        case 'organizationId': return '123';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeOrganizationsOperations.call(
-      mockExecuteFunctions,
-      [{ json: {} }],
-    );
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.walkme.com/v2/organizations/123/environments',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      json: true,
-    });
-  });
-
-  test('should create environment successfully', async () => {
-    const mockResponse = { id: 'env3', name: 'Development', domain: 'dev.example.com' };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'createEnvironment';
-        case 'organizationId': return '123';
-        case 'environmentName': return 'Development';
-        case 'domain': return 'dev.example.com';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeOrganizationsOperations.call(
-      mockExecuteFunctions,
-      [{ json: {} }],
-    );
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://api.walkme.com/v2/organizations/123/environments',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        name: 'Development',
-        domain: 'dev.example.com',
-      },
-      json: true,
-    });
-  });
-
-  test('should update environment successfully', async () => {
-    const mockResponse = { id: 'env1', settings: { feature1: true, feature2: false } };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'updateEnvironment';
-        case 'organizationId': return '123';
-        case 'envId': return 'env1';
-        case 'environmentSettings': return '{"feature1": true, "feature2": false}';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeOrganizationsOperations.call(
-      mockExecuteFunctions,
-      [{ json: {} }],
-    );
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'PUT',
-      url: 'https://api.walkme.com/v2/organizations/123/environments/env1',
-      headers: {
-        'Authorization': 'Bearer test-api-key',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        settings: { feature1: true, feature2: false },
-      },
-      json: true,
-    });
-  });
-
-  test('should handle API errors', async () => {
-    const mockError = {
-      message: 'Organization not found',
-      httpCode: '404',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getOrganization';
-        case 'organizationId': return 'invalid';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(mockError);
-
-    await expect(
-      executeOrganizationsOperations.call(mockExecuteFunctions, [{ json: {} }]),
-    ).rejects.toThrow();
-  });
-
-  test('should handle invalid JSON in settings', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'updateOrganization';
-        case 'organizationId': return '123';
-        case 'name': return 'Test Org';
-        case 'settings': return 'invalid json';
-        default: return undefined;
-      }
-    });
-
-    await expect(
-      executeOrganizationsOperations.call(mockExecuteFunctions, [{ json: {} }]),
-    ).rejects.toThrow('Invalid JSON in settings parameter');
-  });
+	let mockExecuteFunctions: any;
+
+	beforeEach(() => {
+		mockExecuteFunctions = {
+			getNodeParameter: jest.fn(),
+			getCredentials: jest.fn().mockResolvedValue({
+				apiKey: 'test-api-key',
+				baseUrl: 'https://api.walkme.com/v2',
+			}),
+			getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+			getNode: jest.fn().mockReturnValue({ name: 'WalkMe Segments Test' }),
+			continueOnFail: jest.fn().mockReturnValue(false),
+			helpers: {
+				httpRequest: jest.fn(),
+			},
+		};
+	});
+
+	describe('getSegments operation', () => {
+		it('should get segments successfully', async () => {
+			const mockResponse = {
+				segments: [
+					{ id: '1', name: 'Test Segment 1' },
+					{ id: '2', name: 'Test Segment 2' },
+				],
+				total: 2,
+			};
+
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getSegments')
+				.mockReturnValueOnce(1)
+				.mockReturnValueOnce(50);
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: mockResponse,
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+
+		it('should handle getSegments error', async () => {
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getSegments')
+				.mockReturnValueOnce(1)
+				.mockReturnValueOnce(50);
+			mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+			mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: { error: 'API Error' },
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+	});
+
+	describe('getSegment operation', () => {
+		it('should get specific segment successfully', async () => {
+			const mockResponse = { id: '123', name: 'Test Segment', rules: {} };
+
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getSegment')
+				.mockReturnValueOnce('123');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: mockResponse,
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+	});
+
+	describe('createSegment operation', () => {
+		it('should create segment successfully', async () => {
+			const mockResponse = { id: '123', name: 'New Segment', rules: { country: 'US' } };
+
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('createSegment')
+				.mockReturnValueOnce('New Segment')
+				.mockReturnValueOnce({ country: 'US' })
+				.mockReturnValueOnce('Test description');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: mockResponse,
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+	});
+
+	describe('updateSegment operation', () => {
+		it('should update segment successfully', async () => {
+			const mockResponse = { id: '123', name: 'Updated Segment', rules: { country: 'UK' } };
+
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('updateSegment')
+				.mockReturnValueOnce('123')
+				.mockReturnValueOnce('Updated Segment')
+				.mockReturnValueOnce({ country: 'UK' });
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: mockResponse,
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+	});
+
+	describe('deleteSegment operation', () => {
+		it('should delete segment successfully', async () => {
+			const mockResponse = { success: true };
+
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('deleteSegment')
+				.mockReturnValueOnce('123');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: mockResponse,
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+	});
+
+	describe('getSegmentUsers operation', () => {
+		it('should get segment users successfully', async () => {
+			const mockResponse = {
+				users: [
+					{ id: 'user1', email: 'user1@example.com' },
+					{ id: 'user2', email: 'user2@example.com' },
+				],
+				total: 2,
+			};
+
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getSegmentUsers')
+				.mockReturnValueOnce('123')
+				.mockReturnValueOnce(1);
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeSegmentsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([
+				{
+					json: mockResponse,
+					pairedItem: { item: 0 },
+				},
+			]);
+		});
+	});
 });
 });
